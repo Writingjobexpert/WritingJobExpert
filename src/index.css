@@ -17,18 +17,19 @@
     --popover: 0 0% 100%;
     --popover-foreground: 215 25% 27%;
 
-    /* Primary brand colors - exact hex values */
-    --primary: 215 39% 70%;     /* #b5c6e0 */
+    /* Primary brand colors - new gradient palette */
+    --primary: 350 70% 65%;     /* #f27a7d */
     --primary-foreground: 0 0% 100%;
-    --primary-light: 185 38% 96%; /* #ebf4f5 */
+    --primary-light: 45 85% 85%; /* #f7d486 */
+    --primary-accent: 150 60% 85%; /* #c5f9d7 */
 
-    --secondary: 215 39% 85%;   /* Lighter version of primary */
+    --secondary: 45 85% 90%;    /* Lighter version of primary-light */
     --secondary-foreground: 215 25% 27%;
 
     --muted: 185 20% 92%;
     --muted-foreground: 215 15% 50%;
 
-    --accent: 215 60% 65%;      /* Slightly more saturated primary */
+    --accent: 350 70% 60%;      /* Slightly more saturated primary */
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
@@ -36,16 +37,16 @@
 
     --border: 215 20% 88%;
     --input: 215 20% 88%;
-    --ring: 215 39% 70%;
+    --ring: 350 70% 65%;
 
     /* Success colors for status */
-    --success: 142 71% 45%;
+    --success: 150 60% 50%;
     --success-foreground: 0 0% 100%;
 
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(var(--primary-light)), hsl(var(--primary)));
-    --gradient-hero: linear-gradient(135deg, hsl(var(--background)), hsl(var(--primary-light)));
-    --gradient-card: linear-gradient(145deg, hsl(var(--card)), hsl(var(--primary-light)));
+    /* Gradients - new color palette */
+    --gradient-primary: linear-gradient(135deg, #f27a7d, #f7d486, #c5f9d7);
+    --gradient-hero: linear-gradient(135deg, #f27a7d, #f7d486, #c5f9d7);
+    --gradient-card: linear-gradient(145deg, #f7d486, #c5f9d7);
 
     /* Shadows */
     --shadow-soft: 0 4px 20px hsl(var(--primary) / 0.1);
