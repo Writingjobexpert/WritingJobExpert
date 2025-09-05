@@ -1,233 +1,274 @@
-import React from 'react';
-import { Button } from '@/components/ui/button';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PenTool, Briefcase, ArrowRight, Users, Star, TrendingUp } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { PenTool, Users, Building, Eye, EyeOff } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 
 const SignUp = () => {
-  const writerBenefits = [
-    'Access to thousands of writing opportunities',
-    'Secure payments with escrow protection',
-    'Build your professional portfolio',
-    'Connect with top companies globally',
-    'Flexible work schedules',
-    'Skill development resources'
-  ];
+  const [selectedType, setSelectedType] = useState<'writer' | 'business' | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    fullName: '',
+    email: '',
+    password: ''
+  });
+  const { signUp, user } = useAuth();
+  const navigate = useNavigate();
 
-  const businessBenefits = [
-    'Access to vetted professional writers',
-    'Post jobs and receive proposals',
-    'Manage projects efficiently',
-    'Secure payment system',
-    'Quality assurance guarantee',
-    '24/7 customer support'
-  ];
+  useEffect(() => {
+    if (user) {
+      navigate('/');
+    }
+  }, [user, navigate]);
 
-  const stats = [
-    { icon: Users, number: '10,000+', label: 'Active Writers' },
-    { icon: Briefcase, number: '5,000+', label: 'Jobs Completed' },
-    { icon: Star, number: '4.9/5', label: 'Average Rating' }
-  ];
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedType) return;
+    
+    setLoading(true);
+    
+    const { error } = await signUp(formData.email, formData.password, formData.fullName, selectedType);
+    
+    if (!error) {
+      navigate('/');
+    }
+    
+    setLoading(false);
+  };
+
+  if (selectedType) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center py-12 px-4">
+        <div className="w-full max-w-md">
+          {/* Logo and Header */}
+          <div className="text-center mb-8">
+            <Link to="/" className="inline-flex items-center space-x-2 mb-6">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-primary">
+                <PenTool className="h-6 w-6 text-white" />
+              </div>
+              <span className="font-bold text-xl font-poppins">Writing Job Expert</span>
+            </Link>
+            <h1 className="text-2xl font-bold">Create Your Account</h1>
+            <p className="text-muted-foreground mt-2">
+              {selectedType === 'writer' ? 'Join as a Writer' : 'Join as a Business'}
+            </p>
+          </div>
+
+          {/* Sign Up Form */}
+          <Card className="shadow-card">
+            <CardHeader>
+              <CardTitle>Sign Up</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="fullName">Full Name</Label>
+                  <Input
+                    id="fullName"
+                    name="fullName"
+                    type="text"
+                    placeholder="Enter your full name"
+                    value={formData.fullName}
+                    onChange={handleInputChange}
+                    required
+                    className="h-11"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email Address</Label>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="Enter your email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    required
+                    className="h-11"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password</Label>
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      name="password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Create a password"
+                      value={formData.password}
+                      onChange={handleInputChange}
+                      required
+                      className="h-11 pr-10"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4 text-muted-foreground" />
+                      ) : (
+                        <Eye className="h-4 w-4 text-muted-foreground" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
+
+                <Button type="submit" className="w-full h-11" size="lg" disabled={loading}>
+                  {loading ? 'Creating Account...' : 'Create Account'}
+                </Button>
+
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  className="w-full h-11" 
+                  onClick={() => setSelectedType(null)}
+                >
+                  Back to Account Type
+                </Button>
+              </form>
+
+              <div className="mt-6 text-center text-sm">
+                <span className="text-muted-foreground">Already have an account? </span>
+                <Link
+                  to="/login"
+                  className="text-primary hover:text-primary/80 font-medium transition-colors"
+                >
+                  Sign in here
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <section className="gradient-hero py-16">
-        <div className="container text-center">
-          <h1 className="text-4xl lg:text-5xl font-bold mb-4">
-            Join Writing Job Expert
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-            Choose your path and start your journey in the world's largest writing marketplace
-          </p>
-          
-          {/* Stats */}
-          <div className="flex flex-wrap justify-center gap-8 text-center">
-            {stats.map((stat, index) => (
-              <div key={index} className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
-                  <stat.icon className="h-4 w-4 text-primary" />
-                </div>
-                <div>
-                  <div className="font-bold text-lg">{stat.number}</div>
-                  <div className="text-sm text-muted-foreground">{stat.label}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Signup Cards */}
-      <section className="py-16">
-        <div className="container">
-          <div className="grid lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
-            {/* Writer Card */}
-            <Card className="relative overflow-hidden card-hover shadow-hover group">
-              <div className="absolute inset-0 gradient-primary opacity-5 group-hover:opacity-10 transition-opacity"></div>
-              <CardHeader className="relative text-center space-y-4 pb-6">
-                <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                  <PenTool className="h-8 w-8 text-primary" />
-                </div>
-                <div>
-                  <CardTitle className="text-2xl font-bold">For Writers</CardTitle>
-                  <p className="text-muted-foreground">
-                    Showcase your skills and find amazing writing opportunities
-                  </p>
-                </div>
-              </CardHeader>
-              
-              <CardContent className="relative space-y-6">
-                <div className="space-y-3">
-                  {writerBenefits.map((benefit, index) => (
-                    <div key={index} className="flex items-start space-x-3">
-                      <div className="w-5 h-5 bg-success/10 rounded-full flex items-center justify-center shrink-0 mt-0.5">
-                        <div className="w-2 h-2 bg-success rounded-full"></div>
-                      </div>
-                      <span className="text-sm">{benefit}</span>
-                    </div>
-                  ))}
-                </div>
-                
-                <div className="pt-4 border-t border-border">
-                  <Button 
-                    size="lg" 
-                    className="w-full bg-primary hover:bg-primary/90 text-white font-semibold group-hover:shadow-hover transition-all"
-                    asChild
-                  >
-                    <Link to="/pricing">
-                      Become a Member
-                      <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                    </Link>
-                  </Button>
-                  
-                  <p className="text-xs text-muted-foreground text-center mt-3">
-                    Join 10,000+ successful writers
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Business Card */}
-            <Card className="relative overflow-hidden card-hover shadow-hover group">
-              <div className="absolute inset-0 gradient-primary opacity-5 group-hover:opacity-10 transition-opacity"></div>
-              <CardHeader className="relative text-center space-y-4 pb-6">
-                <div className="w-16 h-16 mx-auto bg-accent/10 rounded-full flex items-center justify-center group-hover:bg-accent/20 transition-colors">
-                  <Briefcase className="h-8 w-8 text-accent" />
-                </div>
-                <div>
-                  <CardTitle className="text-2xl font-bold">For Business</CardTitle>
-                  <p className="text-muted-foreground">
-                    Find talented writers and grow your content strategy
-                  </p>
-                </div>
-              </CardHeader>
-              
-              <CardContent className="relative space-y-6">
-                <div className="space-y-3">
-                  {businessBenefits.map((benefit, index) => (
-                    <div key={index} className="flex items-start space-x-3">
-                      <div className="w-5 h-5 bg-success/10 rounded-full flex items-center justify-center shrink-0 mt-0.5">
-                        <div className="w-2 h-2 bg-success rounded-full"></div>
-                      </div>
-                      <span className="text-sm">{benefit}</span>
-                    </div>
-                  ))}
-                </div>
-                
-                <div className="pt-4 border-t border-border">
-                  <Button 
-                    size="lg" 
-                    className="w-full bg-accent hover:bg-accent/90 text-white font-semibold group-hover:shadow-hover transition-all"
-                    asChild
-                  >
-                    <Link to="/pricing">
-                      Start Hiring Today
-                      <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                    </Link>
-                  </Button>
-                  
-                  <p className="text-xs text-muted-foreground text-center mt-3">
-                    Trusted by 5,000+ companies
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Comparison */}
-      <section className="py-16 bg-muted/30">
-        <div className="container">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Why Choose Writing Job Expert?</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              We provide the tools and platform you need to succeed, whether you're writing or hiring writers.
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            <Card className="text-center shadow-card">
-              <CardContent className="p-6 space-y-4">
-                <div className="w-12 h-12 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
-                  <PenTool className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="font-semibold">Quality First</h3>
-                <p className="text-sm text-muted-foreground">
-                  All writers are vetted and verified to ensure high-quality work for every project.
-                </p>
-              </CardContent>
-            </Card>
-            
-            <Card className="text-center shadow-card">
-              <CardContent className="p-6 space-y-4">
-                <div className="w-12 h-12 mx-auto bg-success/10 rounded-full flex items-center justify-center">
-                  <TrendingUp className="h-6 w-6 text-success" />
-                </div>
-                <h3 className="font-semibold">Secure Payments</h3>
-                <p className="text-sm text-muted-foreground">
-                  Protected transactions with escrow system ensuring everyone gets paid fairly.
-                </p>
-              </CardContent>
-            </Card>
-            
-            <Card className="text-center shadow-card">
-              <CardContent className="p-6 space-y-4">
-                <div className="w-12 h-12 mx-auto bg-accent/10 rounded-full flex items-center justify-center">
-                  <Users className="h-6 w-6 text-accent" />
-                </div>
-                <h3 className="font-semibold">24/7 Support</h3>
-                <p className="text-sm text-muted-foreground">
-                  Round-the-clock customer support to help you at every step of your journey.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-16">
-        <div className="container text-center">
-          <div className="max-w-2xl mx-auto space-y-6">
-            <h2 className="text-3xl font-bold">
-              Ready to Get Started?
-            </h2>
-            <p className="text-muted-foreground">
-              Join thousands of writers and businesses already succeeding on our platform.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" asChild>
-                <Link to="/pricing">View Pricing Plans</Link>
-              </Button>
-              <Button variant="outline" size="lg" asChild>
-                <Link to="/login">Already have an account?</Link>
-              </Button>
+    <div className="min-h-screen bg-background py-12 px-4">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <Link to="/" className="inline-flex items-center space-x-2 mb-6">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-primary">
+              <PenTool className="h-6 w-6 text-white" />
             </div>
-          </div>
+            <span className="font-bold text-xl font-poppins">Writing Job Expert</span>
+          </Link>
+          <h1 className="text-3xl font-bold mb-4">Choose Your Account Type</h1>
+          <p className="text-muted-foreground text-lg">
+            Join thousands of writers and businesses on our platform
+          </p>
         </div>
-      </section>
+
+        {/* Account Type Cards */}
+        <div className="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+          {/* For Writers */}
+          <Card 
+            className="relative overflow-hidden shadow-card hover:shadow-card-hover transition-shadow cursor-pointer"
+            onClick={() => setSelectedType('writer')}
+          >
+            <div className="absolute inset-0 bg-gradient-primary opacity-5"></div>
+            <CardHeader className="text-center pb-6">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-primary">
+                <Users className="h-8 w-8 text-white" />
+              </div>
+              <CardTitle className="text-2xl mb-2">For Writers</CardTitle>
+              <p className="text-muted-foreground">
+                Showcase your skills and find amazing writing opportunities
+              </p>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <ul className="space-y-3 mb-6 text-sm">
+                <li className="flex items-center">
+                  <div className="h-2 w-2 bg-primary rounded-full mr-3"></div>
+                  Create a professional profile
+                </li>
+                <li className="flex items-center">
+                  <div className="h-2 w-2 bg-primary rounded-full mr-3"></div>
+                  Browse and apply to jobs
+                </li>
+                <li className="flex items-center">
+                  <div className="h-2 w-2 bg-primary rounded-full mr-3"></div>
+                  Offer your writing services
+                </li>
+                <li className="flex items-center">
+                  <div className="h-2 w-2 bg-primary rounded-full mr-3"></div>
+                  Connect with clients directly
+                </li>
+              </ul>
+              <Button className="w-full h-12 text-base" size="lg">
+                Become a Member
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* For Business */}
+          <Card 
+            className="relative overflow-hidden shadow-card hover:shadow-card-hover transition-shadow cursor-pointer"
+            onClick={() => setSelectedType('business')}
+          >
+            <div className="absolute inset-0 bg-gradient-primary opacity-5"></div>
+            <CardHeader className="text-center pb-6">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-primary">
+                <Building className="h-8 w-8 text-white" />
+              </div>
+              <CardTitle className="text-2xl mb-2">For Business</CardTitle>
+              <p className="text-muted-foreground">
+                Find talented writers and grow your content strategy
+              </p>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <ul className="space-y-3 mb-6 text-sm">
+                <li className="flex items-center">
+                  <div className="h-2 w-2 bg-primary rounded-full mr-3"></div>
+                  Post unlimited job listings
+                </li>
+                <li className="flex items-center">
+                  <div className="h-2 w-2 bg-primary rounded-full mr-3"></div>
+                  Access to qualified writers
+                </li>
+                <li className="flex items-center">
+                  <div className="h-2 w-2 bg-primary rounded-full mr-3"></div>
+                  Hire for various projects
+                </li>
+                <li className="flex items-center">
+                  <div className="h-2 w-2 bg-primary rounded-full mr-3"></div>
+                  Streamlined hiring process
+                </li>
+              </ul>
+              <Button className="w-full h-12 text-base" size="lg">
+                Start Hiring Today
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Already have an account */}
+        <div className="text-center mt-12">
+          <p className="text-muted-foreground">
+            Already have an account?{' '}
+            <Link to="/login" className="text-primary hover:text-primary/80 font-medium transition-colors">
+              Sign in here
+            </Link>
+          </p>
+        </div>
+      </div>
     </div>
   );
 };
