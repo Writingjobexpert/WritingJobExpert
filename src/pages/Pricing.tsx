@@ -172,7 +172,18 @@ const Pricing = () => {
                     size="lg"
                     asChild
                   >
-                    <Link to="/signup">{plan.buttonText}</Link>
+                    <Link 
+                      to="/payment" 
+                      state={{ 
+                        paymentData: { 
+                          type: 'subscription', 
+                          amount: parseInt(plan.price.replace('₹', '').replace(',', '')), 
+                          planName: plan.name 
+                        } 
+                      }}
+                    >
+                      {plan.buttonText}
+                    </Link>
                   </Button>
                 </CardHeader>
                 

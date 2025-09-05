@@ -212,8 +212,8 @@ const SignUp = () => {
                   Connect with clients directly
                 </li>
               </ul>
-              <Button className="w-full h-12 text-base" size="lg">
-                Become a Member
+              <Button className="w-full h-12 text-base" size="lg" asChild>
+                <Link to="/pricing">Become a Member</Link>
               </Button>
             </CardContent>
           </Card>
@@ -252,8 +252,8 @@ const SignUp = () => {
                   Streamlined hiring process
                 </li>
               </ul>
-              <Button className="w-full h-12 text-base" size="lg">
-                Start Hiring Today
+              <Button className="w-full h-12 text-base" size="lg" asChild>
+                <Link to="/pricing">Start Hiring Today</Link>
               </Button>
             </CardContent>
           </Card>

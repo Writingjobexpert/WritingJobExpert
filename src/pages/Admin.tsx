@@ -1,414 +1,623 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { Navigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   Settings, 
-  DollarSign, 
+  CreditCard, 
   Users, 
   FileText, 
-  HelpCircle,
-  CheckCircle,
+  QrCode, 
+  CheckCircle, 
+  Clock, 
   XCircle,
-  Clock
+  Edit,
+  Save,
+  Upload,
+  Eye,
+  EyeOff
 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
-interface Payment {
+interface Transaction {
   id: string;
-  user_id: string;
+  userName: string;
   amount: number;
-  payment_type: string;
-  plan_name: string;
-  utr_number: string;
-  status: string;
-  created_at: string;
-  profiles: {
-    full_name: string;
-    email: string;
-  };
+  type: 'job_posting' | 'subscription';
+  planName?: string;
+  utrNumber: string;
+  status: 'processing' | 'success' | 'failed';
+  date: string;
+  email: string;
+}
+
+interface PricingPlan {
+  id: string;
+  name: string;
+  price: number;
+  period: string;
+  description: string;
+  features: string[];
+  popular: boolean;
 }
 
 interface FAQ {
   id: string;
   question: string;
   answer: string;
-  category: string;
-  display_order: number;
-  is_active: boolean;
-}
-
-interface AdminSettings {
-  pricing_plans: any;
-  job_posting_fee: string;
-  upi_settings: {
-    upi_id: string;
-    qr_code_url: string;
-  };
 }
 
 const Admin = () => {
-  const { user, loading } = useAuth();
-  const { toast } = useToast();
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [checkingAdmin, setCheckingAdmin] = useState(true);
-  const [payments, setPayments] = useState<Payment[]>([]);
-  const [faqs, setFaqs] = useState<FAQ[]>([]);
-  const [settings, setSettings] = useState<AdminSettings>({
-    pricing_plans: {},
-    job_posting_fee: '59',
-    upi_settings: { upi_id: '', qr_code_url: '' }
-  });
-
-  useEffect(() => {
-    if (user && !loading) {
-      checkAdminStatus();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [activeTab, setActiveTab] = useState('payments');
+  const [upiId, setUpiId] = useState('writingjobexpert@paytm');
+  const [qrCodeFile, setQrCodeFile] = useState<File | null>(null);
+  const [jobPostingPrice, setJobPostingPrice] = useState(59);
+  const [pricingPlans, setPricingPlans] = useState<PricingPlan[]>([
+    {
+      id: '1',
+      name: 'Lite',
+      price: 199,
+      period: '/month',
+      description: 'Perfect for freelance writers getting started',
+      features: [
+        'Apply to 10 jobs per month',
+        'Basic profile visibility',
+        'Standard support',
+        'Job alerts via email',
+        'Basic portfolio showcase',
+        'Mobile app access'
+      ],
+      popular: false
+    },
+    {
+      id: '2',
+      name: 'Pro',
+      price: 499,
+      period: '/month',
+      description: 'For professional writers ready to grow',
+      features: [
+        'Unlimited job applications',
+        'Priority profile visibility',
+        'Priority support',
+        'Advanced job matching',
+        'Professional portfolio',
+        'Analytics dashboard',
+        'Custom profile URL',
+        'Featured in search results'
+      ],
+      popular: true
+    },
+    {
+      id: '3',
+      name: 'Lifetime',
+      price: 2999,
+      period: 'one-time',
+      description: 'Unlimited access forever - best value',
+      features: [
+        'Everything in Pro',
+        'Lifetime access',
+        'No recurring fees',
+        'Premium support',
+        'Early access to new features',
+        'Personal account manager',
+        'Custom integrations',
+        'White-label solutions'
+      ],
+      popular: false
     }
-  }, [user, loading]);
-
-  const checkAdminStatus = async () => {
-    try {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('user_type')
-        .eq('user_id', user?.id)
-        .single();
-
-      if (profile?.user_type === 'admin') {
-        setIsAdmin(true);
-        loadAdminData();
-      }
-    } catch (error) {
-      console.error('Error checking admin status:', error);
-    } finally {
-      setCheckingAdmin(false);
+  ]);
+  const [faqs, setFaqs] = useState<FAQ[]>([
+    {
+      id: '1',
+      question: 'Can I change my plan anytime?',
+      answer: 'Yes, you can upgrade or downgrade your plan at any time. Changes will be reflected in your next billing cycle.'
+    },
+    {
+      id: '2',
+      question: 'Is there a free trial available?',
+      answer: 'We offer a 7-day free trial for the Pro plan. No credit card required to get started.'
+    },
+    {
+      id: '3',
+      question: 'What payment methods do you accept?',
+      answer: 'We accept all major UPI payments, net banking, and digital wallets for Indian customers.'
+    },
+    {
+      id: '4',
+      question: 'Can I get a refund?',
+      answer: 'Yes, we offer a 30-day money-back guarantee for all paid plans if you\'re not satisfied.'
+    },
+    {
+      id: '5',
+      question: 'Do you offer discounts for students?',
+      answer: 'Yes, we provide a 50% discount for verified students. Contact our support team for more details.'
+    },
+    {
+      id: '6',
+      question: 'Is the Lifetime plan really lifetime?',
+      answer: 'Yes, the Lifetime plan gives you permanent access to all Pro features with no recurring charges.'
     }
-  };
-
-  const loadAdminData = async () => {
-    await Promise.all([
-      loadPayments(),
-      loadFAQs(),
-      loadSettings()
-    ]);
-  };
-
-  const loadPayments = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('payments')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      // Get user profiles separately
-      const userIds = data?.map(p => p.user_id) || [];
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('user_id, full_name, email')
-        .in('user_id', userIds);
-
-      // Combine payments with profiles
-      const paymentsWithProfiles = data?.map(payment => ({
-        ...payment,
-        profiles: profiles?.find(p => p.user_id === payment.user_id) || { full_name: 'Unknown', email: 'Unknown' }
-      })) || [];
-
-      setPayments(paymentsWithProfiles);
-    } catch (error) {
-      console.error('Error loading payments:', error);
+  ]);
+  const [transactions, setTransactions] = useState<Transaction[]>([
+    {
+      id: '1',
+      userName: 'Priya Sharma',
+      amount: 499,
+      type: 'subscription',
+      planName: 'Pro',
+      utrNumber: 'UPI123456789',
+      status: 'processing',
+      date: '2024-01-15',
+      email: 'priya@example.com'
+    },
+    {
+      id: '2',
+      userName: 'Rahul Gupta',
+      amount: 59,
+      type: 'job_posting',
+      utrNumber: 'UPI987654321',
+      status: 'success',
+      date: '2024-01-14',
+      email: 'rahul@example.com'
+    },
+    {
+      id: '3',
+      userName: 'Ananya Patel',
+      amount: 2999,
+      type: 'subscription',
+      planName: 'Lifetime',
+      utrNumber: 'UPI456789123',
+      status: 'success',
+      date: '2024-01-13',
+      email: 'ananya@example.com'
+    },
+    {
+      id: '4',
+      userName: 'Vikram Singh',
+      amount: 199,
+      type: 'subscription',
+      planName: 'Lite',
+      utrNumber: 'UPI789123456',
+      status: 'failed',
+      date: '2024-01-12',
+      email: 'vikram@example.com'
     }
-  };
+  ]);
+  const [editingPlan, setEditingPlan] = useState<string | null>(null);
+  const [editingFaq, setEditingFaq] = useState<string | null>(null);
+  const navigate = useNavigate();
 
-  const loadFAQs = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('faqs')
-        .select('*')
-        .order('display_order');
-
-      if (error) throw error;
-      setFaqs(data || []);
-    } catch (error) {
-      console.error('Error loading FAQs:', error);
-    }
-  };
-
-  const loadSettings = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('admin_settings')
-        .select('*');
-
-      if (error) throw error;
-      
-      const settingsObj: any = {};
-      data?.forEach((setting) => {
-        settingsObj[setting.setting_key] = setting.setting_value;
-      });
-
-      setSettings({
-        pricing_plans: settingsObj.pricing_plans || {},
-        job_posting_fee: settingsObj.job_posting_fee || '59',
-        upi_settings: settingsObj.upi_settings || { upi_id: '', qr_code_url: '' }
-      });
-    } catch (error) {
-      console.error('Error loading settings:', error);
-    }
-  };
-
-  const updatePaymentStatus = async (paymentId: string, status: string) => {
-    try {
-      const { error } = await supabase
-        .from('payments')
-        .update({ status })
-        .eq('id', paymentId);
-
-      if (error) throw error;
-
-      await loadPayments();
-      toast({
-        title: "Payment Updated",
-        description: `Payment status updated to ${status}`,
-      });
-    } catch (error) {
-      console.error('Error updating payment:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update payment status",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const updateSettings = async (key: string, value: any) => {
-    try {
-      const { error } = await supabase
-        .from('admin_settings')
-        .upsert({ setting_key: key, setting_value: value });
-
-      if (error) throw error;
-
-      toast({
-        title: "Settings Updated",
-        description: "Settings have been saved successfully",
-      });
-    } catch (error) {
-      console.error('Error updating settings:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update settings",
-        variant: "destructive",
-      });
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Simple password check - in production, use proper authentication
+    if (password === 'admin123') {
+      setIsAuthenticated(true);
+    } else {
+      alert('Invalid password');
     }
   };
 
-  if (loading || checkingAdmin) {
+  const updateTransactionStatus = (id: string, status: 'processing' | 'success' | 'failed') => {
+    setTransactions(prev => 
+      prev.map(transaction => 
+        transaction.id === id ? { ...transaction, status } : transaction
+      )
+    );
+  };
+
+  const updatePricingPlan = (id: string, field: keyof PricingPlan, value: any) => {
+    setPricingPlans(prev =>
+      prev.map(plan =>
+        plan.id === id ? { ...plan, [field]: value } : plan
+      )
+    );
+  };
+
+  const updateFaq = (id: string, field: keyof FAQ, value: string) => {
+    setFaqs(prev =>
+      prev.map(faq =>
+        faq.id === id ? { ...faq, [field]: value } : faq
+      )
+    );
+  };
+
+  const addNewFaq = () => {
+    const newFaq: FAQ = {
+      id: Date.now().toString(),
+      question: 'New Question',
+      answer: 'New Answer'
+    };
+    setFaqs(prev => [...prev, newFaq]);
+    setEditingFaq(newFaq.id);
+  };
+
+  const deleteFaq = (id: string) => {
+    setFaqs(prev => prev.filter(faq => faq.id !== id));
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'success':
+        return <Badge className="bg-success text-white"><CheckCircle className="h-3 w-3 mr-1" />Success</Badge>;
+      case 'processing':
+        return <Badge variant="secondary"><Clock className="h-3 w-3 mr-1" />Processing</Badge>;
+      case 'failed':
+        return <Badge variant="destructive"><XCircle className="h-3 w-3 mr-1" />Failed</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
+  };
+
+  if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-muted-foreground">Loading...</p>
-        </div>
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle className="text-center">Admin Login</CardTitle>
+            <p className="text-center text-muted-foreground">Enter admin password to access the dashboard</p>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter admin password"
+                    required
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </Button>
+                </div>
+              </div>
+              <Button type="submit" className="w-full">
+                Login
+              </Button>
+            </form>
+            <div className="mt-4 text-center">
+              <Button variant="ghost" onClick={() => navigate('/')}>
+                Back to Home
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
-
-  if (!isAdmin) {
-    return <Navigate to="/" replace />;
-  }
-
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto py-8 px-4">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-          <p className="text-muted-foreground">Manage your Writing Job Expert platform</p>
+      <div className="container py-8">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+            <p className="text-muted-foreground">Manage your Writing Job Expert platform</p>
+          </div>
+          <Button variant="outline" onClick={() => setIsAuthenticated(false)}>
+            Logout
+          </Button>
         </div>
 
-        <Tabs defaultValue="payments" className="space-y-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="payments" className="flex items-center gap-2">
-              <DollarSign className="h-4 w-4" />
-              Payments
-            </TabsTrigger>
-            <TabsTrigger value="users" className="flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              Users
-            </TabsTrigger>
-            <TabsTrigger value="faqs" className="flex items-center gap-2">
-              <HelpCircle className="h-4 w-4" />
-              FAQs
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center gap-2">
-              <Settings className="h-4 w-4" />
-              Settings
-            </TabsTrigger>
+            <TabsTrigger value="payments">Payments</TabsTrigger>
+            <TabsTrigger value="pricing">Pricing</TabsTrigger>
+            <TabsTrigger value="faq">FAQ</TabsTrigger>
+            <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
 
+          {/* Payments Management */}
           <TabsContent value="payments" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Payment Management</CardTitle>
+                <CardTitle className="flex items-center space-x-2">
+                  <CreditCard className="h-5 w-5" />
+                  <span>Payment Management</span>
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {payments.map((payment) => (
-                    <div key={payment.id} className="border rounded-lg p-4">
-                      <div className="flex justify-between items-start mb-2">
-                        <div>
-                          <h3 className="font-medium">{payment.profiles?.full_name}</h3>
-                          <p className="text-sm text-muted-foreground">{payment.profiles?.email}</p>
-                        </div>
-                        <Badge 
-                          variant={
-                            payment.status === 'success' ? 'default' : 
-                            payment.status === 'failed' ? 'destructive' : 
-                            'secondary'
-                          }
-                        >
-                          {payment.status}
-                        </Badge>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4 text-sm mb-3">
-                        <div>Amount: ₹{payment.amount}</div>
-                        <div>Type: {payment.payment_type}</div>
-                        <div>UTR: {payment.utr_number}</div>
-                        <div>Date: {new Date(payment.created_at).toLocaleDateString()}</div>
-                      </div>
-                      {payment.status === 'processing' && (
-                        <div className="flex gap-2">
-                          <Button 
-                            size="sm" 
-                            onClick={() => updatePaymentStatus(payment.id, 'success')}
-                          >
-                            <CheckCircle className="h-4 w-4 mr-1" />
-                            Approve
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="destructive"
-                            onClick={() => updatePaymentStatus(payment.id, 'failed')}
-                          >
-                            <XCircle className="h-4 w-4 mr-1" />
-                            Reject
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>User</TableHead>
+                        <TableHead>Type</TableHead>
+                        <TableHead>Amount</TableHead>
+                        <TableHead>UTR Number</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {transactions.map((transaction) => (
+                        <TableRow key={transaction.id}>
+                          <TableCell>
+                            <div>
+                              <div className="font-medium">{transaction.userName}</div>
+                              <div className="text-sm text-muted-foreground">{transaction.email}</div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div>
+                              <div className="font-medium">
+                                {transaction.type === 'job_posting' ? 'Job Posting' : 'Subscription'}
+                              </div>
+                              {transaction.planName && (
+                                <div className="text-sm text-muted-foreground">{transaction.planName}</div>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell className="font-medium">₹{transaction.amount}</TableCell>
+                          <TableCell className="font-mono text-sm">{transaction.utrNumber}</TableCell>
+                          <TableCell>{getStatusBadge(transaction.status)}</TableCell>
+                          <TableCell>{transaction.date}</TableCell>
+                          <TableCell>
+                            <div className="flex space-x-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => updateTransactionStatus(transaction.id, 'success')}
+                                disabled={transaction.status === 'success'}
+                              >
+                                <CheckCircle className="h-3 w-3 mr-1" />
+                                Approve
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => updateTransactionStatus(transaction.id, 'failed')}
+                                disabled={transaction.status === 'failed'}
+                              >
+                                <XCircle className="h-3 w-3 mr-1" />
+                                Reject
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value="users" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>User Management</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">User management features coming soon...</p>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="faqs" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>FAQ Management</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {faqs.map((faq) => (
-                    <div key={faq.id} className="border rounded-lg p-4">
-                      <h3 className="font-medium mb-2">{faq.question}</h3>
-                      <p className="text-sm text-muted-foreground mb-2">{faq.answer}</p>
-                      <div className="flex justify-between items-center">
-                        <Badge variant="outline">{faq.category}</Badge>
-                        <Badge variant={faq.is_active ? 'default' : 'secondary'}>
-                          {faq.is_active ? 'Active' : 'Inactive'}
-                        </Badge>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="settings" className="space-y-6">
+          {/* Pricing Management */}
+          <TabsContent value="pricing" className="space-y-6">
             <div className="grid gap-6">
+              {/* Job Posting Price */}
               <Card>
                 <CardHeader>
-                  <CardTitle>UPI Settings</CardTitle>
+                  <CardTitle>Job Posting Price</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="upi-id">UPI ID</Label>
-                    <Input
-                      id="upi-id"
-                      value={settings.upi_settings.upi_id}
-                      onChange={(e) => setSettings({
-                        ...settings,
-                        upi_settings: { ...settings.upi_settings, upi_id: e.target.value }
-                      })}
-                      placeholder="your-upi@bank"
-                    />
+                <CardContent>
+                  <div className="flex items-center space-x-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="jobPrice">Price (₹)</Label>
+                      <Input
+                        id="jobPrice"
+                        type="number"
+                        value={jobPostingPrice}
+                        onChange={(e) => setJobPostingPrice(Number(e.target.value))}
+                        className="w-32"
+                      />
+                    </div>
+                    <Button>
+                      <Save className="h-4 w-4 mr-2" />
+                      Update Price
+                    </Button>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="qr-code-url">QR Code URL</Label>
-                    <Input
-                      id="qr-code-url"
-                      value={settings.upi_settings.qr_code_url}
-                      onChange={(e) => setSettings({
-                        ...settings,
-                        upi_settings: { ...settings.upi_settings, qr_code_url: e.target.value }
-                      })}
-                      placeholder="https://example.com/qr-code.png"
-                    />
-                  </div>
-                  <Button onClick={() => updateSettings('upi_settings', settings.upi_settings)}>
-                    Save UPI Settings
-                  </Button>
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Job Posting Fee</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="job-fee">Fee Amount (₹)</Label>
-                    <Input
-                      id="job-fee"
-                      type="number"
-                      value={settings.job_posting_fee}
-                      onChange={(e) => setSettings({
-                        ...settings,
-                        job_posting_fee: e.target.value
-                      })}
-                    />
-                  </div>
-                  <Button onClick={() => updateSettings('job_posting_fee', settings.job_posting_fee)}>
-                    Save Job Posting Fee
-                  </Button>
-                </CardContent>
-              </Card>
+              {/* Pricing Plans */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xl font-semibold">Subscription Plans</h3>
+                </div>
+                {pricingPlans.map((plan) => (
+                  <Card key={plan.id}>
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="flex items-center space-x-2">
+                          <span>{plan.name}</span>
+                          {plan.popular && <Badge>Popular</Badge>}
+                        </CardTitle>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setEditingPlan(editingPlan === plan.id ? null : plan.id)}
+                        >
+                          <Edit className="h-4 w-4 mr-2" />
+                          {editingPlan === plan.id ? 'Cancel' : 'Edit'}
+                        </Button>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label>Price (₹)</Label>
+                          <Input
+                            value={plan.price}
+                            onChange={(e) => updatePricingPlan(plan.id, 'price', Number(e.target.value))}
+                            disabled={editingPlan !== plan.id}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Period</Label>
+                          <Input
+                            value={plan.period}
+                            onChange={(e) => updatePricingPlan(plan.id, 'period', e.target.value)}
+                            disabled={editingPlan !== plan.id}
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Description</Label>
+                        <Textarea
+                          value={plan.description}
+                          onChange={(e) => updatePricingPlan(plan.id, 'description', e.target.value)}
+                          disabled={editingPlan !== plan.id}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Features (one per line)</Label>
+                        <Textarea
+                          value={plan.features.join('\n')}
+                          onChange={(e) => updatePricingPlan(plan.id, 'features', e.target.value.split('\n'))}
+                          disabled={editingPlan !== plan.id}
+                          rows={6}
+                        />
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id={`popular-${plan.id}`}
+                          checked={plan.popular}
+                          onChange={(e) => updatePricingPlan(plan.id, 'popular', e.target.checked)}
+                          disabled={editingPlan !== plan.id}
+                        />
+                        <Label htmlFor={`popular-${plan.id}`}>Mark as Popular</Label>
+                      </div>
+                      {editingPlan === plan.id && (
+                        <Button>
+                          <Save className="h-4 w-4 mr-2" />
+                          Save Changes
+                        </Button>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </div>
+          </TabsContent>
+
+          {/* FAQ Management */}
+          <TabsContent value="faq" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle>FAQ Management</CardTitle>
+                  <Button onClick={addNewFaq}>
+                    <FileText className="h-4 w-4 mr-2" />
+                    Add FAQ
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {faqs.map((faq) => (
+                  <Card key={faq.id}>
+                    <CardContent className="pt-6">
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <Label>Question</Label>
+                          <Input
+                            value={faq.question}
+                            onChange={(e) => updateFaq(faq.id, 'question', e.target.value)}
+                            disabled={editingFaq !== faq.id}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Answer</Label>
+                          <Textarea
+                            value={faq.answer}
+                            onChange={(e) => updateFaq(faq.id, 'answer', e.target.value)}
+                            disabled={editingFaq !== faq.id}
+                            rows={3}
+                          />
+                        </div>
+                        <div className="flex space-x-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setEditingFaq(editingFaq === faq.id ? null : faq.id)}
+                          >
+                            <Edit className="h-3 w-3 mr-1" />
+                            {editingFaq === faq.id ? 'Cancel' : 'Edit'}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => deleteFaq(faq.id)}
+                          >
+                            Delete
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Settings */}
+          <TabsContent value="settings" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Settings className="h-5 w-5" />
+                  <span>UPI Payment Settings</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="upiId">UPI ID</Label>
+                  <Input
+                    id="upiId"
+                    value={upiId}
+                    onChange={(e) => setUpiId(e.target.value)}
+                    placeholder="your-upi-id@paytm"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label>QR Code Image</Label>
+                  <div className="flex items-center space-x-4">
+                    <div className="w-32 h-32 border-2 border-dashed border-muted-foreground/25 rounded-lg flex items-center justify-center">
+                      <QrCode className="h-16 w-16 text-muted-foreground" />
+                    </div>
+                    <div className="space-y-2">
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => setQrCodeFile(e.target.files?.[0] || null)}
+                      />
+                      <Button size="sm" variant="outline">
+                        <Upload className="h-4 w-4 mr-2" />
+                        Upload QR Code
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
+                <Button>
+                  <Save className="h-4 w-4 mr-2" />
+                  Save Settings
+                </Button>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>

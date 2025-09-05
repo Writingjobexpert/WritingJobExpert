@@ -9,6 +9,7 @@ export const Header = () => {
 
   const navItems = [
     { label: 'Jobs', href: '/jobs' },
+    { label: 'Companies', href: '/jobs?filter=companies' },
     { label: 'Writers', href: '/writers' },
     { label: 'Services', href: '/services' },
     { label: 'Pricing', href: '/pricing' }
@@ -41,8 +42,19 @@ export const Header = () => {
 
         <div className="flex items-center space-x-4 ml-auto">
           {/* Post a Job Button with Dynamic Price */}
-          <Button variant="default" className="hidden md:flex bg-accent hover:bg-accent/90 text-white font-semibold px-6">
-            Post a Job - ₹59
+          <Button variant="default" className="hidden md:flex bg-accent hover:bg-accent/90 text-white font-semibold px-6" asChild>
+            <Link 
+              to="/payment" 
+              state={{ 
+                paymentData: { 
+                  type: 'job_posting', 
+                  amount: 59, 
+                  jobTitle: 'New Job Posting' 
+                } 
+              }}
+            >
+              Post a Job - ₹59
+            </Link>
           </Button>
 
           {/* Auth Buttons */}
@@ -85,8 +97,19 @@ export const Header = () => {
             </nav>
             
             <div className="flex flex-col space-y-2 pt-2 border-t border-border">
-              <Button variant="default" className="bg-accent hover:bg-accent/90 text-white font-semibold">
-                Post a Job - ₹59
+              <Button variant="default" className="bg-accent hover:bg-accent/90 text-white font-semibold" asChild>
+                <Link 
+                  to="/payment" 
+                  state={{ 
+                    paymentData: { 
+                      type: 'job_posting', 
+                      amount: 59, 
+                      jobTitle: 'New Job Posting' 
+                    } 
+                  }}
+                >
+                  Post a Job - ₹59
+                </Link>
               </Button>
               <div className="flex space-x-2">
                 <Button variant="ghost" size="sm" className="flex-1" asChild>
