@@ -28,7 +28,7 @@ const DatabaseTest = () => {
       }
 
       // Test all tables
-      const tables = ['profiles', 'jobs', 'services', 'payments', 'admin_settings', 'faqs'];
+      const tables = ['profiles', 'jobs', 'services', 'payments', 'admin_settings', 'faqs', 'support_tickets', 'support_messages'] as const;
       const tableResults = await Promise.all(
         tables.map(async (table) => {
           const { error } = await supabase.from(table).select('*').limit(1);
@@ -60,7 +60,7 @@ const DatabaseTest = () => {
 
   const testSpecificTable = async (tableName: string) => {
     try {
-      const { data, error } = await supabase.from(tableName).select('*').limit(5);
+      const { data, error } = await supabase.from(tableName as any).select('*').limit(5);
       if (error) {
         console.error(`Error testing ${tableName}:`, error);
         return { success: false, error: error.message };
