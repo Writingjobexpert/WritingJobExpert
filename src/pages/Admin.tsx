@@ -27,6 +27,18 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { getAllUsers, resetUserPassword, User } from '@/lib/auth';
+import { 
+  getPricingPlans, 
+  updatePricingPlans, 
+  getJobPostingFee, 
+  updateJobPostingFee,
+  getFAQs,
+  createFAQ,
+  updateFAQ,
+  deleteFAQ,
+  PricingPlan,
+  FAQ
+} from '@/lib/admin';
 
 interface Transaction {
   id: string;
@@ -69,92 +81,10 @@ const Admin = () => {
   const [resetLoading, setResetLoading] = useState(false);
   const [users, setUsers] = useState<User[]>([]);
   const [usersLoading, setUsersLoading] = useState(false);
-  const [pricingPlans, setPricingPlans] = useState<PricingPlan[]>([
-    {
-      id: '1',
-      name: 'Lite',
-      price: 199,
-      period: '/month',
-      description: 'Perfect for freelance writers getting started',
-      features: [
-        'Apply to 10 jobs per month',
-        'Basic profile visibility',
-        'Standard support',
-        'Job alerts via email',
-        'Basic portfolio showcase',
-        'Mobile app access'
-      ],
-      popular: false
-    },
-    {
-      id: '2',
-      name: 'Pro',
-      price: 499,
-      period: '/month',
-      description: 'For professional writers ready to grow',
-      features: [
-        'Unlimited job applications',
-        'Priority profile visibility',
-        'Priority support',
-        'Advanced job matching',
-        'Professional portfolio',
-        'Analytics dashboard',
-        'Custom profile URL',
-        'Featured in search results'
-      ],
-      popular: true
-    },
-    {
-      id: '3',
-      name: 'Lifetime',
-      price: 2999,
-      period: 'one-time',
-      description: 'Unlimited access forever - best value',
-      features: [
-        'Everything in Pro',
-        'Lifetime access',
-        'No recurring fees',
-        'Premium support',
-        'Early access to new features',
-        'Personal account manager',
-        'Custom integrations',
-        'White-label solutions'
-      ],
-      popular: false
-    }
-  ]);
-  const [faqs, setFaqs] = useState<FAQ[]>([
-    {
-      id: '1',
-      question: 'Can I change my plan anytime?',
-      answer: 'Yes, you can upgrade or downgrade your plan at any time. Changes will be reflected in your next billing cycle.'
-    },
-    {
-      id: '2',
-      question: 'Is there a free trial available?',
-      answer: 'We offer a 7-day free trial for the Pro plan. No credit card required to get started.'
-    },
-    {
-      id: '3',
-      question: 'What payment methods do you accept?',
-      answer: 'We accept all major UPI payments, net banking, and digital wallets for Indian customers.'
-    },
-    {
-      id: '4',
-      question: 'Can I get a refund?',
-      answer: 'Yes, we offer a 30-day money-back guarantee for all paid plans if you\'re not satisfied.'
-    },
-    {
-      id: '5',
-      question: 'Do you offer discounts for students?',
-      answer: 'Yes, we provide a 50% discount for verified students. Contact our support team for more details.'
-    },
-    {
-      id: '6',
-      question: 'Is the Lifetime plan really lifetime?',
-      answer: 'Yes, the Lifetime plan gives you permanent access to all Pro features with no recurring charges.'
-    }
-  ]);
+  const [pricingPlans, setPricingPlans] = useState<PricingPlan[]>([]);
+  const [pricingLoading, setPricingLoading] = useState(false);
+  const [faqs, setFaqs] = useState<FAQ[]>([]);
+  const [faqsLoading, setFaqsLoading] = useState(false);
   const [transactions, setTransactions] = useState<Transaction[]>([
     {
       id: '1',
@@ -260,12 +190,73 @@ const Admin = () => {
     }
   };
 
-  // Load users when component mounts
+  // Load data when component mounts
   useEffect(() => {
     if (isAuthenticated) {
       loadUsers();
+      loadPricingPlans();
+      loadFAQs();
+      loadJobPostingFee();
     }
   }, [isAuthenticated]);
+
+  const loadPricingPlans = async () => {
+    setPricingLoading(true);
+    try {
+      const { plans, error } = await getPricingPlans();
+      if (error) {
+        console.error('Error loading pricing plans:', error);
+      } else {
+        setPricingPlans(plans || []);
+      }
+    } catch (error) {
+      console.error('Error loading pricing plans:', error);
+    } finally {
+      setPricingLoading(false);
+    }
+  };
+
+  const loadFAQs = async () => {
+    setFaqsLoading(true);
+    try {
+      const { faqs: faqsData, error } = await getFAQs();
+      if (error) {
+        console.error('Error loading FAQs:', error);
+      } else {
+        setFaqs(faqsData || []);
+      }
+    } catch (error) {
+      console.error('Error loading FAQs:', error);
+    } finally {
+      setFaqsLoading(false);
+    }
+  };
+
+  const loadJobPostingFee = async () => {
+    try {
+      const { fee, error } = await getJobPostingFee();
+      if (error) {
+        console.error('Error loading job posting fee:', error);
+      } else {
+        setJobPostingPrice(fee || 59);
+      }
+    } catch (error) {
+      console.error('Error loading job posting fee:', error);
+    }
+  };
+
+  const handleJobPostingPriceUpdate = async () => {
+    try {
+      const { success, error } = await updateJobPostingFee(jobPostingPrice);
+      if (success) {
+        alert(`Job posting price updated to ₹${jobPostingPrice}`);
+      } else {
+        alert(`Error updating job posting price: ${error}`);
+      }
+    } catch (error) {
+      alert('Error updating job posting price');
+    }
+  };
 
   const updateTransactionStatus = (id: string, status: 'processing' | 'success' | 'failed') => {
     setTransactions(prev => 
@@ -275,34 +266,88 @@ const Admin = () => {
     );
   };
 
-  const updatePricingPlan = (id: string, field: keyof PricingPlan, value: any) => {
-    setPricingPlans(prev =>
-      prev.map(plan =>
-        plan.id === id ? { ...plan, [field]: value } : plan
-      )
+  const updatePricingPlan = async (id: string, field: keyof PricingPlan, value: any) => {
+    const updatedPlans = pricingPlans.map(plan => 
+      plan.id === id ? { ...plan, [field]: value } : plan
     );
+    
+    setPricingPlans(updatedPlans);
+    
+    // Save to database
+    try {
+      const { success, error } = await updatePricingPlans(updatedPlans);
+      if (!success) {
+        console.error('Error updating pricing plans:', error);
+        // Revert on error
+        setPricingPlans(pricingPlans);
+      }
+    } catch (error) {
+      console.error('Error updating pricing plans:', error);
+      // Revert on error
+      setPricingPlans(pricingPlans);
+    }
   };
 
-  const updateFaq = (id: string, field: keyof FAQ, value: string) => {
-    setFaqs(prev =>
-      prev.map(faq =>
-        faq.id === id ? { ...faq, [field]: value } : faq
-      )
-    );
+  const updateFaq = async (id: string, field: keyof FAQ, value: string) => {
+    const faq = faqs.find(f => f.id === id);
+    if (!faq) return;
+
+    const updatedFaq = { ...faq, [field]: value };
+    
+    try {
+      const { success, error } = await updateFAQ(
+        id, 
+        updatedFaq.question, 
+        updatedFaq.answer, 
+        updatedFaq.category, 
+        updatedFaq.display_order
+      );
+      
+      if (success) {
+        setFaqs(prev =>
+          prev.map(f =>
+            f.id === id ? updatedFaq : f
+          )
+        );
+      } else {
+        console.error('Error updating FAQ:', error);
+      }
+    } catch (error) {
+      console.error('Error updating FAQ:', error);
+    }
   };
 
-  const addNewFaq = () => {
-    const newFaq: FAQ = {
-      id: Date.now().toString(),
-      question: 'New Question',
-      answer: 'New Answer'
-    };
-    setFaqs(prev => [...prev, newFaq]);
-    setEditingFaq(newFaq.id);
+  const addNewFaq = async () => {
+    try {
+      const { faq, error } = await createFAQ(
+        'New Question',
+        'New Answer',
+        'general',
+        faqs.length + 1
+      );
+      
+      if (faq) {
+        setFaqs(prev => [...prev, faq]);
+        setEditingFaq(faq.id);
+      } else {
+        console.error('Error creating FAQ:', error);
+      }
+    } catch (error) {
+      console.error('Error creating FAQ:', error);
+    }
   };
 
-  const deleteFaq = (id: string) => {
-    setFaqs(prev => prev.filter(faq => faq.id !== id));
+  const deleteFaq = async (id: string) => {
+    try {
+      const { success, error } = await deleteFAQ(id);
+      if (success) {
+        setFaqs(prev => prev.filter(faq => faq.id !== id));
+      } else {
+        console.error('Error deleting FAQ:', error);
+      }
+    } catch (error) {
+      console.error('Error deleting FAQ:', error);
+    }
   };
 
   const getStatusBadge = (status: string) => {
@@ -382,11 +427,6 @@ const Admin = () => {
               >
                 Sixty4BitFreelancing
               </a>
-            </div>
-            <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
-              <p className="text-sm text-yellow-800">
-                <strong>Note:</strong> Database connection is currently disabled. Admin features are in demo mode.
-              </p>
             </div>
           </div>
           <Button variant="outline" onClick={() => setIsAuthenticated(false)}>
@@ -620,7 +660,7 @@ const Admin = () => {
                         className="w-32"
                       />
                     </div>
-                    <Button>
+                    <Button onClick={handleJobPostingPriceUpdate}>
                       <Save className="h-4 w-4 mr-2" />
                       Update Price
                     </Button>
