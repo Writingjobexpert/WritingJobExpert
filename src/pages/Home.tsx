@@ -102,7 +102,7 @@ const Home = () => {
               {/* Floating Stats Cards */}
               <Card className="absolute -left-4 top-8 shadow-hover bg-white/95 backdrop-blur">
                 <CardContent className="p-4">
-                  <div className="text-2xl font-bold text-primary">₹2.5M+</div>
+                  <div className="text-2xl font-bold text-primary">1lakh+</div>
                   <div className="text-sm text-muted-foreground">Paid to writers</div>
                 </CardContent>
               </Card>

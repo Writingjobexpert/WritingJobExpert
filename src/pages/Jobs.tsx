@@ -239,7 +239,7 @@ const Jobs = () => {
                     <div className="text-sm text-muted-foreground">Jobs Available</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-success">₹2.5M+</div>
+                    <div className="text-2xl font-bold text-success">1lakh+</div>
                     <div className="text-sm text-muted-foreground">Total Earnings</div>
                   </div>
                 </div>
