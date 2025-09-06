@@ -59,10 +59,13 @@ const Admin = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [activeTab, setActiveTab] = useState('payments');
+  const [activeTab, setActiveTab] = useState('users');
   const [upiId, setUpiId] = useState('writingjobexpert@paytm');
   const [qrCodeFile, setQrCodeFile] = useState<File | null>(null);
   const [jobPostingPrice, setJobPostingPrice] = useState(59);
+  const [resetEmail, setResetEmail] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [resetLoading, setResetLoading] = useState(false);
   const [pricingPlans, setPricingPlans] = useState<PricingPlan[]>([
     {
       id: '1',
@@ -208,6 +211,28 @@ const Admin = () => {
     }
   };
 
+  const handlePasswordReset = async () => {
+    if (!resetEmail || !newPassword) {
+      alert('Please enter both email and new password');
+      return;
+    }
+
+    setResetLoading(true);
+    try {
+      // Note: In a real implementation, you would need admin privileges to reset passwords
+      // This is a placeholder for the admin password reset functionality
+      alert(`Password reset for ${resetEmail} would be implemented here. This requires admin API access.`);
+      
+      // Clear the form
+      setResetEmail('');
+      setNewPassword('');
+    } catch (error) {
+      alert('Error resetting password. Please try again.');
+    } finally {
+      setResetLoading(false);
+    }
+  };
+
   const updateTransactionStatus = (id: string, status: 'processing' | 'success' | 'failed') => {
     setTransactions(prev => 
       prev.map(transaction => 
@@ -336,12 +361,87 @@ const Admin = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="users">Users</TabsTrigger>
             <TabsTrigger value="payments">Payments</TabsTrigger>
             <TabsTrigger value="pricing">Pricing</TabsTrigger>
             <TabsTrigger value="faq">FAQ</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
+
+          {/* Users Management */}
+          <TabsContent value="users" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Users className="h-5 w-5" />
+                  <span>User Management</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <h3 className="font-medium text-blue-900 mb-2">Password Reset Instructions</h3>
+                    <p className="text-sm text-blue-700 mb-3">
+                      When users forget their password, they will be redirected to contact you on Telegram.
+                    </p>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm font-medium">Telegram:</span>
+                      <a 
+                        href="https://t.me/deepak_wadhwa_official09" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:text-blue-800 underline"
+                      >
+                        @deepak_wadhwa_official09
+                      </a>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <h3 className="font-medium">Reset User Password</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="reset-email">User Email</Label>
+                        <Input
+                          id="reset-email"
+                          placeholder="Enter user email"
+                          value={resetEmail}
+                          onChange={(e) => setResetEmail(e.target.value)}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="new-password">New Password</Label>
+                        <Input
+                          id="new-password"
+                          type="password"
+                          placeholder="Enter new password"
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <Button 
+                      onClick={handlePasswordReset}
+                      disabled={!resetEmail || !newPassword || resetLoading}
+                      className="w-full md:w-auto"
+                    >
+                      {resetLoading ? 'Resetting...' : 'Reset Password'}
+                    </Button>
+                  </div>
+
+                  <div className="space-y-4">
+                    <h3 className="font-medium">All Users</h3>
+                    <div className="bg-muted/30 rounded-lg p-4">
+                      <p className="text-sm text-muted-foreground">
+                        User management features will be available here. Currently, all user accounts are managed through Supabase Auth.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           {/* Payments Management */}
           <TabsContent value="payments" className="space-y-6">
