@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { getAllUsers, resetUserPassword, User } from '@/lib/auth';
 
 interface Transaction {
   id: string;
@@ -66,6 +67,8 @@ const Admin = () => {
   const [resetEmail, setResetEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [resetLoading, setResetLoading] = useState(false);
+  const [users, setUsers] = useState<User[]>([]);
+  const [usersLoading, setUsersLoading] = useState(false);
   const [pricingPlans, setPricingPlans] = useState<PricingPlan[]>([
     {
       id: '1',
@@ -211,27 +214,58 @@ const Admin = () => {
     }
   };
 
+  const loadUsers = async () => {
+    setUsersLoading(true);
+    try {
+      const { users: usersData, error } = await getAllUsers();
+      if (error) {
+        alert(`Error loading users: ${error}`);
+      } else {
+        setUsers(usersData || []);
+      }
+    } catch (error) {
+      alert('Error loading users');
+    } finally {
+      setUsersLoading(false);
+    }
+  };
+
   const handlePasswordReset = async () => {
     if (!resetEmail || !newPassword) {
       alert('Please enter both email and new password');
       return;
     }
 
+    // Find user by email
+    const user = users.find(u => u.email === resetEmail);
+    if (!user) {
+      alert('User not found with this email');
+      return;
+    }
+
     setResetLoading(true);
     try {
-      // Note: In a real implementation, you would need admin privileges to reset passwords
-      // This is a placeholder for the admin password reset functionality
-      alert(`Password reset for ${resetEmail} would be implemented here. This requires admin API access.`);
-      
-      // Clear the form
-      setResetEmail('');
-      setNewPassword('');
+      const { success, error } = await resetUserPassword(user.id, newPassword);
+      if (success) {
+        alert(`Password reset successfully for ${resetEmail}`);
+        setResetEmail('');
+        setNewPassword('');
+      } else {
+        alert(`Error resetting password: ${error}`);
+      }
     } catch (error) {
       alert('Error resetting password. Please try again.');
     } finally {
       setResetLoading(false);
     }
   };
+
+  // Load users when component mounts
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadUsers();
+    }
+  }, [isAuthenticated]);
 
   const updateTransactionStatus = (id: string, status: 'processing' | 'success' | 'failed') => {
     setTransactions(prev => 
@@ -431,12 +465,58 @@ const Admin = () => {
                   </div>
 
                   <div className="space-y-4">
-                    <h3 className="font-medium">All Users</h3>
-                    <div className="bg-muted/30 rounded-lg p-4">
-                      <p className="text-sm text-muted-foreground">
-                        User management features will be available here. Currently, all user accounts are managed through Supabase Auth.
-                      </p>
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-medium">All Users ({users.length})</h3>
+                      <Button onClick={loadUsers} disabled={usersLoading} size="sm">
+                        {usersLoading ? 'Loading...' : 'Refresh'}
+                      </Button>
                     </div>
+                    
+                    {usersLoading ? (
+                      <div className="text-center py-8">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                        <p className="text-sm text-muted-foreground mt-2">Loading users...</p>
+                      </div>
+                    ) : users.length === 0 ? (
+                      <div className="bg-muted/30 rounded-lg p-4 text-center">
+                        <p className="text-sm text-muted-foreground">No users found</p>
+                      </div>
+                    ) : (
+                      <div className="border rounded-lg">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Name</TableHead>
+                              <TableHead>Email</TableHead>
+                              <TableHead>Type</TableHead>
+                              <TableHead>Status</TableHead>
+                              <TableHead>Created</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {users.map((user) => (
+                              <TableRow key={user.id}>
+                                <TableCell className="font-medium">{user.full_name}</TableCell>
+                                <TableCell>{user.email}</TableCell>
+                                <TableCell>
+                                  <Badge variant={user.user_type === 'admin' ? 'destructive' : 'secondary'}>
+                                    {user.user_type}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell>
+                                  <Badge variant={user.is_active ? 'default' : 'secondary'}>
+                                    {user.is_active ? 'Active' : 'Inactive'}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell>
+                                  {new Date(user.created_at).toLocaleDateString()}
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    )}
                   </div>
                 </div>
               </CardContent>
