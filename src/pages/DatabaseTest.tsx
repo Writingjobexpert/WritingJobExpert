@@ -134,8 +134,21 @@ const DatabaseTest = () => {
                   <div>
                     <h4 className="font-medium mb-2">Supabase URL:</h4>
                     <p className="text-sm text-muted-foreground font-mono">
-                      https://htmglmnjwsyutqaxkahf.supabase.co
+                      {import.meta.env.VITE_SUPABASE_URL || "Not configured - using Lovable.dev"}
                     </p>
+                  </div>
+                  
+                  <div>
+                    <h4 className="font-medium mb-2">Configuration Status:</h4>
+                    <div className="flex items-center space-x-2">
+                      {import.meta.env.VITE_SUPABASE_URL ? (
+                        <Badge className="bg-green-100 text-green-800">Configured</Badge>
+                      ) : (
+                        <Badge variant="outline" className="border-yellow-200 text-yellow-800">
+                          Using Default (Lovable.dev)
+                        </Badge>
+                      )}
+                    </div>
                   </div>
                   
                   <div>
