@@ -12,6 +12,7 @@
     "build:prod": "vite build --mode production",
     "lint": "eslint .",
     "preview": "vite preview",
+    "setup-env": "node setup-env.js",
     "deploy": "npm run build:prod && vercel --prod",
     "deploy:netlify": "npm run build:prod && netlify deploy --prod"
   },
