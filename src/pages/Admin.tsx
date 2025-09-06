@@ -26,7 +26,6 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import AdminSupportChat from '@/components/AdminSupportChat';
 
 interface Transaction {
   id: string;
@@ -337,11 +336,10 @@ const Admin = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="payments">Payments</TabsTrigger>
             <TabsTrigger value="pricing">Pricing</TabsTrigger>
             <TabsTrigger value="faq">FAQ</TabsTrigger>
-            <TabsTrigger value="support">Support</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
 
@@ -591,20 +589,6 @@ const Admin = () => {
             </Card>
           </TabsContent>
 
-          {/* Support Chat */}
-          <TabsContent value="support" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <MessageCircle className="h-5 w-5" />
-                  <span>Support Chat Management</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <AdminSupportChat />
-              </CardContent>
-            </Card>
-          </TabsContent>
 
           {/* Settings */}
           <TabsContent value="settings" className="space-y-6">
