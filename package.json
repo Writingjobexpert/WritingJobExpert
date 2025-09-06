@@ -1,14 +1,19 @@
 {
-  "name": "vite_react_shadcn_ts",
+  "name": "writing-job-expert",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "The All-In-One Writing Marketplace - Connect writers with businesses",
+  "homepage": "https://writingjobexpert.site",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "build:dev": "vite build --mode development",
+    "build:prod": "vite build --mode production",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy": "npm run build:prod && vercel --prod",
+    "deploy:netlify": "npm run build:prod && netlify deploy --prod"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
