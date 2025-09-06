@@ -1,10 +1,10 @@
-// Supabase Configuration - No Database Connection
+// Supabase Configuration
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-// Disabled database connection
-const SUPABASE_URL = "https://disabled.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "disabled-key";
+// Get environment variables
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://disabled.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || "disabled-key";
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
