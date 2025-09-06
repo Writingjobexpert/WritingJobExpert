@@ -314,6 +314,11 @@ const Admin = () => {
           <div>
             <h1 className="text-3xl font-bold">Admin Dashboard</h1>
             <p className="text-muted-foreground">Manage your Writing Job Expert platform</p>
+            <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+              <p className="text-sm text-yellow-800">
+                <strong>Note:</strong> Database connection is currently disabled. Admin features are in demo mode.
+              </p>
+            </div>
           </div>
           <Button variant="outline" onClick={() => setIsAuthenticated(false)}>
             Logout

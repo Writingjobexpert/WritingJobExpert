@@ -19,39 +19,15 @@ const DatabaseTest = () => {
   const testDatabaseConnection = async () => {
     setLoading(true);
     try {
-      // Test basic connection
-      const { data, error } = await supabase.from('profiles').select('count').limit(1);
-      
-      if (error) {
-        setStatus({ connected: false, error: error.message });
-        return;
-      }
-
-      // Test all tables
-      const tables = ['profiles', 'jobs', 'services', 'payments', 'admin_settings', 'faqs', 'support_tickets', 'support_messages'] as const;
-      const tableResults = await Promise.all(
-        tables.map(async (table) => {
-          const { error } = await supabase.from(table).select('*').limit(1);
-          return { table, error: error?.message };
-        })
-      );
-
-      const workingTables = tableResults.filter(result => !result.error).map(result => result.table);
-      const failedTables = tableResults.filter(result => result.error);
-
-      setStatus({
-        connected: true,
-        tables: workingTables,
-        data: {
-          workingTables,
-          failedTables,
-          totalTables: tables.length
-        }
+      // Database connection is disabled
+      setStatus({ 
+        connected: false, 
+        error: 'Database connection has been disabled. No database operations available.' 
       });
     } catch (err) {
       setStatus({ 
         connected: false, 
-        error: err instanceof Error ? err.message : 'Unknown error occurred' 
+        error: 'Database connection disabled' 
       });
     } finally {
       setLoading(false);
@@ -132,22 +108,18 @@ const DatabaseTest = () => {
               <CardContent>
                 <div className="space-y-4">
                   <div>
-                    <h4 className="font-medium mb-2">Supabase URL:</h4>
+                    <h4 className="font-medium mb-2">Database Status:</h4>
                     <p className="text-sm text-muted-foreground font-mono">
-                      {import.meta.env.VITE_SUPABASE_URL || "Not configured - using Lovable.dev"}
+                      Database connection disabled
                     </p>
                   </div>
                   
                   <div>
                     <h4 className="font-medium mb-2">Configuration Status:</h4>
                     <div className="flex items-center space-x-2">
-                      {import.meta.env.VITE_SUPABASE_URL ? (
-                        <Badge className="bg-green-100 text-green-800">Configured</Badge>
-                      ) : (
-                        <Badge variant="outline" className="border-yellow-200 text-yellow-800">
-                          Using Default (Lovable.dev)
-                        </Badge>
-                      )}
+                      <Badge variant="outline" className="border-red-200 text-red-800">
+                        Database Disconnected
+                      </Badge>
                     </div>
                   </div>
                   
