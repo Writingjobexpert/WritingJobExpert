@@ -62,9 +62,6 @@ export const Header = () => {
           {/* Auth Buttons */}
           <div className="hidden md:flex items-center space-x-2">
             <Button variant="ghost" size="sm" asChild>
-              <Link to="/admin">Admin</Link>
-            </Button>
-            <Button variant="ghost" size="sm" asChild>
               <Link to="/login">Log In</Link>
             </Button>
             <Button variant="default" size="sm" asChild>
@@ -117,9 +114,6 @@ export const Header = () => {
                 </Link>
               </Button>
               <div className="flex space-x-2">
-                <Button variant="ghost" size="sm" className="flex-1" asChild>
-                  <Link to="/admin">Admin</Link>
-                </Button>
                 <Button variant="ghost" size="sm" className="flex-1" asChild>
                   <Link to="/login">Log In</Link>
                 </Button>
