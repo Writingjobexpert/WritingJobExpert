@@ -1,73 +1,156 @@
-# Welcome to your Lovable project
+# Writing Job Expert
 
-## Project info
+**The All-In-One Writing Marketplace**
 
-**URL**: https://lovable.dev/projects/df444854-c70a-4afe-ac84-c10113425205
+A comprehensive two-sided marketplace connecting writers with businesses, built with modern web technologies and designed for production deployment.
 
-## How can I edit this code?
+## 🚀 Live Demo
 
-There are several ways of editing your application.
+**Domain:** [writingjobexpert.site](https://writingjobexpert.site)
 
-**Use Lovable**
+## 👨‍💻 Development
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/df444854-c70a-4afe-ac84-c10113425205) and start prompting.
+**Developed by:** [Sixty4bitFreelancing](https://github.com/sixtyfourbitsquad)
 
-Changes made via Lovable will be committed automatically to this repo.
+This project was custom-built from scratch to create a professional writing marketplace platform with advanced features and modern UI/UX design.
 
-**Use your preferred IDE**
+## ✨ Features
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Frontend
+- **Modern Design**: Custom gradient color scheme (84ffc9 + aab2ff + eca0ff)
+- **Responsive Layout**: Mobile-first design with Tailwind CSS
+- **Dynamic Pages**: Jobs, Writers, Services, Pricing, Admin Panel
+- **Payment Integration**: UPI payment gateway with QR code support
+- **SEO Optimized**: Meta tags, Open Graph, Twitter Cards
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Backend & Admin
+- **Admin Dashboard**: Complete content management system
+- **Payment Management**: UPI transaction tracking and verification
+- **Dynamic Content**: Editable pricing, FAQs, and site content
+- **Database Ready**: Supabase integration with migrations
 
-Follow these steps:
+## 🛠️ Tech Stack
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+- **Frontend**: React 18 + TypeScript
+- **Build Tool**: Vite
+- **UI Library**: Shadcn UI
+- **Styling**: Tailwind CSS
+- **Routing**: React Router DOM
+- **State Management**: React Context API
+- **Database**: Supabase (PostgreSQL)
+- **Deployment**: Vercel/Netlify ready
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+## 🚀 Quick Start
 
-# Step 3: Install the necessary dependencies.
-npm i
+### Prerequisites
+- Node.js 18+ 
+- npm or yarn
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/Writingjobexpert/WritingJobExpert.git
+cd WritingJobExpert
+
+# Install dependencies
+npm install
+
+# Start development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### Production Build
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```bash
+# Build for production
+npm run build:prod
 
-**Use GitHub Codespaces**
+# Deploy to Vercel
+npm run deploy
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+# Deploy to Netlify
+npm run deploy:netlify
+```
 
-## What technologies are used for this project?
+## 📁 Project Structure
 
-This project is built with:
+```
+src/
+├── components/          # Reusable UI components
+│   ├── Layout/         # Header, Footer, Navigation
+│   └── ui/             # Shadcn UI components
+├── pages/              # Main application pages
+│   ├── Home.tsx        # Landing page
+│   ├── Jobs.tsx        # Job listings
+│   ├── Writers.tsx     # Writer profiles
+│   ├── Services.tsx    # Service listings
+│   ├── Pricing.tsx     # Pricing plans
+│   ├── Admin.tsx       # Admin dashboard
+│   └── Payment.tsx     # Payment processing
+├── integrations/       # Database and API integrations
+└── App.tsx            # Main application component
+```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## 🎨 Design System
 
-## How can I deploy this project?
+- **Primary Colors**: #ebf4f5, #b5c6e0
+- **Gradient**: 84ffc9 → aab2ff → eca0ff
+- **Typography**: Poppins, Montserrat
+- **Currency**: INR (₹)
 
-Simply open [Lovable](https://lovable.dev/projects/df444854-c70a-4afe-ac84-c10113425205) and click on Share -> Publish.
+## 🔧 Configuration
 
-## Can I connect a custom domain to my Lovable project?
+### Environment Variables
+Create a `.env` file in the root directory:
 
-Yes, you can!
+```env
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+### Database Setup
+1. Create a Supabase project
+2. Run the migration files in `supabase/migrations/`
+3. Update environment variables
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+## 📱 Pages Overview
+
+- **Home**: Hero section with CTAs and company logos
+- **Jobs**: Job listings with advanced filtering
+- **Writers**: Writer profiles with skills and portfolios
+- **Services**: Writing services marketplace
+- **Pricing**: Subscription plans (Lite, Pro, Lifetime)
+- **Admin**: Content and payment management
+- **Payment**: UPI payment processing
+
+## 🚀 Deployment
+
+### Vercel (Recommended)
+```bash
+npm run deploy
+```
+
+### Netlify
+```bash
+npm run deploy:netlify
+```
+
+### Manual Deployment
+1. Build the project: `npm run build:prod`
+2. Upload `dist/` folder to your hosting provider
+3. Configure custom domain: `writingjobexpert.site`
+
+## 📄 License
+
+This project is proprietary software developed by Sixty4bitFreelancing.
+
+## 🤝 Support
+
+For technical support or customization requests, contact:
+- **Developer**: Sixty4bitFreelancing
+- **GitHub**: [@sixtyfourbitsquad](https://github.com/sixtyfourbitsquad)
+
+---
+
+**Built with ❤️ by Sixty4bitFreelancing**
