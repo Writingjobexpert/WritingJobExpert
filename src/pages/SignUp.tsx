@@ -41,7 +41,7 @@ const SignUp = () => {
     const { error } = await signUp(formData.email, formData.password, formData.fullName, selectedType);
     
     if (!error) {
-      navigate('/');
+      navigate('/thank-you');
     }
     
     setLoading(false);
