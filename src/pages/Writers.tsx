@@ -206,21 +206,6 @@ const Writers = () => {
               </CardContent>
             </Card>
 
-            {/* Quick Stats */}
-            <Card>
-              <CardContent className="pt-6">
-                <div className="space-y-4">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-primary">{writers.length}</div>
-                    <div className="text-sm text-muted-foreground">Writers Available</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-success">4.8/5</div>
-                    <div className="text-sm text-muted-foreground">Average Rating</div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
           </div>
 
           {/* Writer Listings */}

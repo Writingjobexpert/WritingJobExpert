@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { JobCard } from '@/components/ui/job-card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRight, Users, Star, TrendingUp, CheckCircle } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import heroImage from '@/assets/hero-bg.jpg';
 import writersAvatars from '@/assets/writers-avatars.jpg';
@@ -44,12 +44,6 @@ const Home = () => {
     }
   ];
 
-  const stats = [
-    { number: '10,000+', label: 'Active Writers', icon: Users },
-    { number: '5,000+', label: 'Jobs Posted', icon: TrendingUp },
-    { number: '4.9/5', label: 'Average Rating', icon: Star },
-    { number: '98%', label: 'Job Success Rate', icon: CheckCircle }
-  ];
 
   return (
     <div className="min-h-screen">
@@ -143,22 +137,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-16">
-        <div className="container">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
-              <div key={index} className="text-center space-y-2">
-                <div className="w-12 h-12 mx-auto bg-primary/10 rounded-full flex items-center justify-center mb-4">
-                  <stat.icon className="h-6 w-6 text-primary" />
-                </div>
-                <div className="text-3xl font-bold">{stat.number}</div>
-                <div className="text-sm text-muted-foreground">{stat.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* Featured Jobs */}
       <section className="py-16 bg-muted/30">
