@@ -314,6 +314,17 @@ const Admin = () => {
           <div>
             <h1 className="text-3xl font-bold">Admin Dashboard</h1>
             <p className="text-muted-foreground">Manage your Writing Job Expert platform</p>
+            <div className="mt-2 flex items-center space-x-2">
+              <span className="text-sm text-muted-foreground">Built by</span>
+              <a 
+                href="https://t.me/Sixty4Bit_Freelancing" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+              >
+                Sixty4BitFreelancing
+              </a>
+            </div>
             <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
               <p className="text-sm text-yellow-800">
                 <strong>Note:</strong> Database connection is currently disabled. Admin features are in demo mode.
