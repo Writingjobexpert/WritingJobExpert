@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { PenTool, Menu, X } from 'lucide-react';
 import { useState } from 'react';
+import logoImage from '@/assets/writingjobexpert.png';
 
 export const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -19,9 +20,11 @@ export const Header = () => {
       <div className="container flex h-16 items-center">
         <div className="flex items-center space-x-4">
           <Link to="/" className="flex items-center space-x-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-primary">
-              <PenTool className="h-5 w-5 text-white" />
-            </div>
+            <img 
+              src={logoImage} 
+              alt="Writing Job Expert" 
+              className="h-8 w-8 object-contain"
+            />
             <span className="font-bold text-xl font-poppins">Writing Job Expert</span>
           </Link>
         </div>
