@@ -15,6 +15,7 @@ import SignUp from "./pages/SignUp";
 import Login from "./pages/Login";
 import Admin from "./pages/Admin";
 import AdminTest from "./pages/AdminTest";
+import DatabaseTest from "./pages/DatabaseTest";
 import Payment from "./pages/Payment";
 import NotFound from "./pages/NotFound";
 
@@ -37,6 +38,7 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/admin-test" element={<AdminTest />} />
+            <Route path="/database-test" element={<DatabaseTest />} />
             <Route path="/payment" element={<Payment />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<Layout><NotFound /></Layout>} />
